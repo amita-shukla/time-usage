@@ -74,8 +74,7 @@ object TimeUsage {
   /** @return An RDD Row compatible with the schema produced by `dfSchema`
     * @param line Raw fields
     */
-  def row(line: List[String]): Row =
-    ???
+  def row(line: List[String]): Row = Row.fromSeq(line)
 
   /** @return The initial data frame columns partitioned in three groups: primary needs (sleeping, eating, etc.),
     *         work and other (leisure activities)
@@ -93,7 +92,17 @@ object TimeUsage {
     *    “t10”, “t12”, “t13”, “t14”, “t15”, “t16” and “t18” (those which are not part of the previous groups only).
     */
   def classifiedColumns(columnNames: List[String]): (List[Column], List[Column], List[Column]) = {
-    ???
+
+    val primaryNeeds : List[Column] = columnNames.filter(column => column.startsWith("t01") || column.startsWith("t03") || column.startsWith("t11") || column.startsWith("t1801") || column.startsWith("t1803"))
+                                      .map(elem => new Column(elem))
+    val workingActitvities : List[Column] = columnNames.filter(column => column.startsWith("t05") || column.startsWith("t1805") )
+      .map(elem => new Column(elem))
+
+    val otherActivities : List[Column] = columnNames.filter( column =>
+      column.startsWith("t02") || column.startsWith("t04") || column.startsWith("t06") || column.startsWith("t07") || column.startsWith("t08") || column.startsWith("t09") || column.startsWith("t10") || column.startsWith("t12") || column.startsWith("t13") || column.startsWith("t14") || column.startsWith("t15") || column.startsWith("t16") || column.startsWith("t18")
+    ).map(elem => new Column(elem))
+
+    (primaryNeeds,workingActitvities,otherActivities)
   }
 
   /** @return a projection of the initial DataFrame such that all columns containing hours spent on primary needs
