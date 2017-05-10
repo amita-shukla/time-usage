@@ -141,12 +141,14 @@ object TimeUsage {
     otherColumns: List[Column],
     df: DataFrame
   ): DataFrame = {
-    val workingStatusProjection: Column = ???
-    val sexProjection: Column = ???
-    val ageProjection: Column = ???
+    val workingStatusProjection: Column = when(df("telfs") <3 && df("telfs") >=1 , "working").otherwise("not working")
+    val sexProjection: Column = when(df("tesex") ===  1 , "male").otherwise("female")
+    val ageProjection: Column = when(df("teage") <= 22 && df("teage") >= 15, "young")
+                                .when(df("teage") <= 55 && df("teage") >= 23, "active")
+                                .otherwise("elder")
 
     val primaryNeedsProjection: Column = ???
-    val workProjection: Column = ???
+    val workProjection: Column =
     val otherProjection: Column = ???
     df
       .select(workingStatusProjection, sexProjection, ageProjection, primaryNeedsProjection, workProjection, otherProjection)
