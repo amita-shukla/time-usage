@@ -148,13 +148,13 @@ object TimeUsage {
                                 .when(df("teage") <= 55 && df("teage") >= 23, "active")
                                 .otherwise("elder").as("age")
 
-    def sum(columnList : List[Column]) : Column = {
+    def sumInHours(columnList : List[Column]) : Column = columnList.reduceLeft(_+_).divide(60.0)
 
-    }
 
-    val primaryNeedsProjection: Column = primaryNeedsColumns.reduceLeft(_+_).divide(60.0).as("primaryNeeds")
-    val workProjection: Column = ???
-    val otherProjection: Column = ???
+
+    val primaryNeedsProjection: Column = sumInHours(primaryNeedsColumns).as("primaryNeeds")
+    val workProjection: Column = sumInHours(workColumns).as("work")
+    val otherProjection: Column = sumInHours(otherColumns).as("other")
     df
       .select(workingStatusProjection, sexProjection, ageProjection, primaryNeedsProjection, workProjection, otherProjection)
       .where($"telfs" <= 4) // Discard people who are not in labor force
