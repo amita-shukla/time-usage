@@ -29,9 +29,11 @@ object TimeUsage {
   def timeUsageByLifePeriod(): Unit = {
     val (columns, initDf) = read("/timeusage/atussum.csv")
     val (primaryNeedsColumns, workColumns, otherColumns) = classifiedColumns(columns)
+    //println("primary head : " +primaryNeedsColumns.head)
     val summaryDf = timeUsageSummary(primaryNeedsColumns, workColumns, otherColumns, initDf)
-    val finalDf = timeUsageGrouped(summaryDf)
-    finalDf.show()
+    summaryDf.show()
+   // val finalDf = timeUsageGrouped(summaryDf)
+    //finalDf.show()
   }
 
   /** @return The read DataFrame along with its column names. */
@@ -64,9 +66,9 @@ object TimeUsage {
     */
   def dfSchema(columnNames: List[String]): StructType = {
     val tailFields : List[StructField] = columnNames.tail.map( elem =>
-      StructField(elem,DoubleType,true)
+      StructField(elem,DoubleType,false)
     )
-    val structType = StructType(StructField(columnNames.head,StringType,true) :: tailFields)
+    val structType = StructType(StructField(columnNames.head,StringType,false) :: tailFields)
     structType
   }
 
@@ -148,7 +150,9 @@ object TimeUsage {
                                 .when(df("teage") <= 55 && df("teage") >= 23, "active")
                                 .otherwise("elder").as("age")
 
-    def sumInHours(columnList : List[Column]) : Column = columnList.reduceLeft(_+_).divide(60.0)
+    def sumInHours(columnList : List[Column]) : Column = {
+     columnList.reduceLeft(_.plus(_)).divide(60)
+    }
 
 
 
