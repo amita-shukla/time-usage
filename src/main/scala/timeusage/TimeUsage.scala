@@ -142,18 +142,25 @@ object TimeUsage {
     df: DataFrame
   ): DataFrame = {
     val workingStatusProjection: Column = when(df("telfs") <3 && df("telfs") >=1 , "working").otherwise("not working")
-    val sexProjection: Column = when(df("tesex") ===  1 , "male").otherwise("female")
+                                            .as("working")
+    val sexProjection: Column = when(df("tesex") ===  1 , "male").otherwise("female").as("sex")
     val ageProjection: Column = when(df("teage") <= 22 && df("teage") >= 15, "young")
                                 .when(df("teage") <= 55 && df("teage") >= 23, "active")
-                                .otherwise("elder")
+                                .otherwise("elder").as("age")
 
-    val primaryNeedsProjection: Column = ???
-    val workProjection: Column =
+    def sum(columnList : List[Column]) : Column = {
+
+    }
+
+    val primaryNeedsProjection: Column = primaryNeedsColumns.reduceLeft(_+_).divide(60.0).as("primaryNeeds")
+    val workProjection: Column = ???
     val otherProjection: Column = ???
     df
       .select(workingStatusProjection, sexProjection, ageProjection, primaryNeedsProjection, workProjection, otherProjection)
       .where($"telfs" <= 4) // Discard people who are not in labor force
   }
+
+
 
   /** @return the average daily time (in hours) spent in primary needs, working or leisure, grouped by the different
     *         ages of life (young, active or elder), sex and working status.
