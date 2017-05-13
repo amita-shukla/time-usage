@@ -32,8 +32,8 @@ object TimeUsage {
     //println("primary head : " +primaryNeedsColumns.head)
     val summaryDf = timeUsageSummary(primaryNeedsColumns, workColumns, otherColumns, initDf)
   //  summaryDf.show()
-    //val finalDf = timeUsageGrouped(summaryDf)
-    val finalDf = timeUsageGroupedSql(summaryDf)
+    val finalDf = timeUsageGrouped(summaryDf)
+    //val finalDf = timeUsageGroupedSql(summaryDf)
     finalDf.show()
   }
 
@@ -185,7 +185,10 @@ object TimeUsage {
     */
   def timeUsageGrouped(summed: DataFrame): DataFrame = {
 
-    summed.select("working","sex","age", "primaryNeeds","work","other").groupBy("working","sex","age").avg()
+    summed.select("working","sex","age", "primaryNeeds","work","other")
+      .groupBy("working","sex","age")
+      .agg(round(avg("primaryNeeds"),1),round(avg("work"),1),round(avg("other"),1))
+      .sort("working","sex","age")
   }
 
   /**
