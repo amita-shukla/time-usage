@@ -31,9 +31,10 @@ object TimeUsage {
     val (primaryNeedsColumns, workColumns, otherColumns) = classifiedColumns(columns)
     //println("primary head : " +primaryNeedsColumns.head)
     val summaryDf = timeUsageSummary(primaryNeedsColumns, workColumns, otherColumns, initDf)
-    summaryDf.show()
-   // val finalDf = timeUsageGrouped(summaryDf)
-    //finalDf.show()
+  //  summaryDf.show()
+    //val finalDf = timeUsageGrouped(summaryDf)
+    val finalDf = timeUsageGroupedSql(summaryDf)
+    finalDf.show()
   }
 
   /** @return The read DataFrame along with its column names. */
@@ -76,7 +77,8 @@ object TimeUsage {
   /** @return An RDD Row compatible with the schema produced by `dfSchema`
     * @param line Raw fields
     */
-  def row(line: List[String]): Row = Row.fromSeq(line)
+  def row(line: List[String]): Row = Row.fromSeq(line.head :: line.tail.map(_.toDouble))
+
 
   /** @return The initial data frame columns partitioned in three groups: primary needs (sleeping, eating, etc.),
     *         work and other (leisure activities)
@@ -154,8 +156,6 @@ object TimeUsage {
      columnList.reduceLeft(_.plus(_)).divide(60)
     }
 
-
-
     val primaryNeedsProjection: Column = sumInHours(primaryNeedsColumns).as("primaryNeeds")
     val workProjection: Column = sumInHours(workColumns).as("work")
     val otherProjection: Column = sumInHours(otherColumns).as("other")
@@ -184,7 +184,8 @@ object TimeUsage {
     * Finally, the resulting DataFrame should be sorted by working status, sex and age.
     */
   def timeUsageGrouped(summed: DataFrame): DataFrame = {
-    ???
+
+    summed.select("working","sex","age", "primaryNeeds","work","other").groupBy("working","sex","age").avg()
   }
 
   /**
@@ -200,9 +201,9 @@ object TimeUsage {
   /** @return SQL query equivalent to the transformation implemented in `timeUsageGrouped`
     * @param viewName Name of the SQL view to use
     */
-  def timeUsageGroupedSqlQuery(viewName: String): String =
-    ???
-
+  def timeUsageGroupedSqlQuery(viewName: String): String = {
+    "select working,sex,age,round(avg(primaryNeeds),1),round(avg(work),1),round(avg(other),1) from " + viewName + " group by working,sex,age order by working,sex,age"
+  }
   /**
     * @return A `Dataset[TimeUsageRow]` from the “untyped” `DataFrame`
     * @param timeUsageSummaryDf `DataFrame` returned by the `timeUsageSummary` method
