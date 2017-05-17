@@ -102,7 +102,7 @@ object TimeUsage {
       .map(elem => new Column(elem))
 
     val otherActivities: List[Column] = columnNames.filter(column =>
-      column.startsWith("t02") || column.startsWith("t04") || column.startsWith("t06") || column.startsWith("t07") || column.startsWith("t08") || column.startsWith("t09") || column.startsWith("t10") || column.startsWith("t12") || column.startsWith("t13") || column.startsWith("t14") || column.startsWith("t15") || column.startsWith("t16") || (column.startsWith("t18") && !column.startsWith("t1801") && column.startsWith("t1803") && column.startsWith("t1805"))
+      column.startsWith("t02") || column.startsWith("t04") || column.startsWith("t06") || column.startsWith("t07") || column.startsWith("t08") || column.startsWith("t09") || column.startsWith("t10") || column.startsWith("t12") || column.startsWith("t13") || column.startsWith("t14") || column.startsWith("t15") || column.startsWith("t16") || (column.startsWith("t18") && !column.startsWith("t1801") && !column.startsWith("t1803") && !column.startsWith("t1805"))
     ).map(elem => new Column(elem))
 
     (primaryNeeds, workingActivities, otherActivities)
@@ -228,6 +228,28 @@ object TimeUsage {
     *               Hint: you should use the `groupByKey` and `typed.avg` methods.
     */
   def timeUsageGroupedTyped(summed: Dataset[TimeUsageRow]): Dataset[TimeUsageRow] = {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     import org.apache.spark.sql.expressions.scalalang.typed
 
     summed.groupByKey(r => (r.working, r.sex, r.age))
